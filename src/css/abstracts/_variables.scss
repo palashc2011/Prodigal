@@ -1,0 +1,44 @@
+$primary-color: #009ae0;
+$secondary-color: #d7dee3;
+$grey: #979797;
+$red: #ff6363;
+
+// Spacing
+//
+// Control the default styling of most elements by modifying these
+// variables. Mostly focused on spacing.
+// You can add more entries to the $spacers map, should you need more variation.
+
+$spacer: 1rem !default;
+$spacers: (
+  0: 0,
+  1: ($spacer * 0.25),
+  2: ($spacer * 0.5),
+  3: $spacer,
+  4: ($spacer * 1.5),
+  5: ($spacer * 3),
+  6: ($spacer * 4)
+) !default;
+
+// This variable affects the `.h-*` and `.w-*` classes.
+$sizes: (
+  10: 10%,
+  25: 25%,
+  50: 50%,
+  75: 75%,
+  100: 100%
+) !default;
+
+// letterSpacing unit
+$letterSpacing: 0.3ch;
+
+// font specific
+$fontSize1: 2rem;
+$fontSize2: 1.6rem;
+$fontSize3: 1.4rem;
+$fontSize4: 1.2rem;
+$fontSize5: 1rem;
+$fontSize6: 0.8rem;
+
+$fontWeightMedium: 400;
+$fontWeightbold: 600;

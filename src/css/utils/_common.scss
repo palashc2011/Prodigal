@@ -1,0 +1,56 @@
+.overflow-auto {
+    overflow: auto;
+}
+
+.border-none {
+    border: none !important;
+}
+
+.middle-align-children {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vac-middle {
+    // vertical align children - middle
+    display: flex;
+    align-items: center;
+}
+
+.word-wrap {
+    word-wrap: break-word;
+}
+
+.letter-spacing {
+    letter-spacing: $letterSpacing;
+}
+
+.upper-case {
+    text-transform: uppercase;
+}
+
+.customButtonStyle {
+    margin-top: 2em !important;
+    display: block;
+}
+
+.customMarginStyle {
+    margin: 1rem 0 !important;
+    font-size: 16px !important;
+    max-height: 14rem !important;
+    width: 100%;
+}
+
+.overflowScroll {
+    overflow-y: scroll !important;
+    max-height: 400px !important;
+}
+.anchorColor {
+  color: rgba(0,0,0,.87)
+}
+.anchorColor:hover {
+  color: rgba(0,0,0,.87)
+}
+    
+

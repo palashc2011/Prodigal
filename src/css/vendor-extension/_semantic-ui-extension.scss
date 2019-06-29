@@ -1,0 +1,18 @@
+// override accordion style
+
+.ui.styled.accordion .accordion .title,
+.ui.styled.accordion .title {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.absent-student input:disabled {
+  text-align: center !important;
+}
+.absent-student{
+  width: 10em;
+}
+
+.little.ui.message {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
