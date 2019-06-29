@@ -83,7 +83,8 @@ class CallerList extends React.Component {
     if(value.length > currentLabels.length)
     {
         const newValue = value[value.length-1];
-        this.addLabel(newValue, callId, false);
+        if(this.state.labelList.indexOf(newValue) != -1)
+          this.addLabel(newValue, callId, false);
     }
     else if(value.length < currentLabels.length)
     {

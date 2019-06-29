@@ -24,7 +24,7 @@ export default function CallerDetails({
               {`Call-Id: ${singleCallerData.call_id}`}
             </span>
           </Grid.Column>
-          <Grid.Column computer="4">
+          <Grid.Column computer="6">
             <span style={{ fontSize: '1.5rem', frontWeight: '300' }}>
             {`Call-Time: ${singleCallerData.call_time}`}
             </span>
