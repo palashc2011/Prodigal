@@ -7,6 +7,7 @@ import CallerDetails from '../../components/CallerList/CallerDetails'
 import CallerTop from '../../components/CallerList/CallerListTop'
 import EmptyScreen from '../../components/CallerList/EmptyCallerList'
 import LabelModal from '../../components/CallerList/LabelModal'
+import ConfirmationModal from '../../components/CallerList/ConfirmationModal'
 
 import { Helmet } from 'react-helmet';
 import { labelActions } from './constants'
@@ -52,9 +53,11 @@ class CallerList extends React.Component {
     });
   }
   render() {
-    if(!this.state.infoLoaded) return this.getLoader();
+    const { confirmationModal, infoLoaded, labelModal } = this.state
+    if(!infoLoaded) return this.getLoader();
     return (<div>
-      {this.state.labelModal && this.getLabelModal()}
+      {labelModal && this.getLabelModal()}
+      {confirmationModal && this.getConfirmationModal()}
       <Grid divided>
         <Grid.Row>
           <Grid.Column computer="3">
@@ -474,7 +477,7 @@ handleAddedLabelsMultiple = ({ value }) => {
         multipleLabelizeLabels: [],
         labelModal: false,
         labelizeMode: false
-      }, () => alert(selectedCalls.length+ " calls labelized successfully."));
+      }, () => this.showConfirmationModal(selectedCalls.length+ " calls labelized successfully."));
     }
     addLabel({
       handleSuccess,
@@ -493,6 +496,13 @@ handleAddedLabelsMultiple = ({ value }) => {
     }
     this.setState({ labelModal: true })
   }
+  showConfirmationModal = (text) => {
+    this.setState({
+      confirmationModal: true,
+      confirmationModalText: text
+    })
+  }
   hideLabelModal = () => this.setState({ labelModal: false, multipleLabelizeLabels: [] })
+  getConfirmationModal = () => <ConfirmationModal text={this.state.confirmationModalText} hideModal={() => this.setState({ confirmationModal: false})} />
 }
 export default CallerList
