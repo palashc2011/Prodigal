@@ -6,9 +6,12 @@ import { get, sortBy } from 'lodash'
 import CallerDetails from '../../components/CallerList/CallerDetails'
 import CallerTop from '../../components/CallerList/CallerListTop'
 import EmptyScreen from '../../components/CallerList/EmptyCallerList'
+import LabelModal from '../../components/CallerList/LabelModal'
+
 import { Helmet } from 'react-helmet';
 import { labelActions } from './constants'
 const durationFilterSegments = 5
+
 class CallerList extends React.Component {
   constructor(props) {
     super(props)
@@ -23,7 +26,13 @@ class CallerList extends React.Component {
       resultsPerPage: 10,
       pageNumber: 1,
       callWiseLabels: {},
-      infoLoaded: false
+      infoLoaded: false,
+      labelizeMode: false,
+      isAllSelected: false,
+      selectedCalls: [],
+      deselectedArray: [],
+      labelModal: false,
+      multipleLabelizeLabels: []
     }
   }
   componentDidMount() {
@@ -45,6 +54,7 @@ class CallerList extends React.Component {
   render() {
     if(!this.state.infoLoaded) return this.getLoader();
     return (<div>
+      {this.state.labelModal && this.getLabelModal()}
       <Grid divided>
         <Grid.Row>
           <Grid.Column computer="3">
@@ -74,30 +84,11 @@ class CallerList extends React.Component {
       labelList={this.state.labelList}
       handleNewLabels={this.handleNewLabels}
       handleAddedLabels={this.handleAddedLabels}
+      isSelected={this.state.selectedCalls.indexOf(val.call_id) != -1}
+      isAllSelected={this.state.isAllSelected}
+      handleCheckboxChange={this.handleCheckboxChange}
+      labelizeMode={this.state.labelizeMode}
       />)
-  }
-
-  handleAddedLabels = (e, { value }, callId) => {
-    const result = []
-    const currentLabels = this.state.callWiseLabels[callId] || []
-    if(value.length > currentLabels.length)
-    {
-        const newValue = value[value.length-1];
-        if(this.state.labelList.indexOf(newValue) != -1)
-          this.addLabel(newValue, callId, false);
-    }
-    else if(value.length < currentLabels.length)
-    {
-        const newValue = currentLabels.filter(val => (value.indexOf(val) === -1))[0];
-        //console.log(newValue, 'removenewvalue');
-      this.removeLabel(newValue, callId);
-    }
-    // value.map((c) => {
-    //   if (typeof c !== "string") {
-    //     result.push(c)
-    //   }
-    // })
-    // this.setState({ tags: result })
   }
 
   getFilteredCalls = () => {
@@ -212,7 +203,23 @@ class CallerList extends React.Component {
   searchTerm={this.state.searchTerm} onSearchTermChange={this.onSearchTermChange}
   pageNumberOptions={this.getPageNumberOptions()}
   pageNumberChange={this.pageNumberChange}
+  totalResults={this.getFilteredCalls().length}
+  labelizeModeOn={this.labelizeModeOn}
+  labelizeMode={this.state.labelizeMode}
+  selectAll={this.selectAll}
+  deSelectAll={this.deSelectAll}
+  isAllSelected={this.state.isAllSelected}
+  applyLabels={this.applyLabels}
+  selectedCalls={this.state.selectedCalls}
+  deselectedArray={this.state.deselectedArray}
+  selectedCount={this.getSelectedCount()}
+  labelizeModeOff={this.labelizeModeOff}
   />
+  getSelectedCount = () => {
+    return this.state.isAllSelected ? (this.getFilteredCalls().length - this.state.deselectedArray.length) : this.state.selectedCalls.length;
+  }
+  labelizeModeOn = () => this.setState({ labelizeMode: true })
+  labelizeModeOff = () => this.setState({ labelizeMode: false })
   setCallerFilterOptions(callerList) {
     this.setState({
       callerFilterOptions: callerList.map(val => ({ checked: false, label: val, value: val }))
@@ -325,9 +332,70 @@ class CallerList extends React.Component {
     })
     return pageNumberOptions
   }
+// label functions
+
+handleCheckboxChange = (data, callId) => {
+  let { selectedCalls, deselectedArray, isAllSelected }  = this.state
+  if(data.checked) {
+    selectedCalls.push(callId);
+    if(isAllSelected)
+    {
+      const index = deselectedArray.indexOf(callId);
+      if(index!=-1) deselectedArray.splice(index, 1);
+    }
+  } else {
+    const index = selectedCalls.indexOf(callId);
+    selectedCalls.splice(index, 1);
+    if(isAllSelected)
+    {
+      const index = deselectedArray.indexOf(callId);
+      if(index==-1) deselectedArray.push(callId);
+    }
+  }
+  this.setState({
+    selectedCalls: [...selectedCalls],
+    deselectedArray: [...deselectedArray]
+  })
+}
+
+handleAddedLabels = (e, { value }, callId) => {
+  const result = []
+  const currentLabels = this.state.callWiseLabels[callId] || []
+  if(value.length > currentLabels.length)
+  {
+      const newValue = value[value.length-1];
+      if(this.state.labelList.indexOf(newValue) != -1)
+        this.addLabel(newValue, callId, false);
+  }
+  else if(value.length < currentLabels.length)
+  {
+    const newValue = currentLabels.filter(val => (value.indexOf(val) === -1))[0];
+      //console.log(newValue, 'removenewvalue');
+    this.removeLabel(newValue, callId);
+  }
+  // value.map((c) => {
+  //   if (typeof c !== "string") {
+  //     result.push(c)
+  //   }
+  // })
+  // this.setState({ tags: result })
+}
+handleAddedLabelsMultiple = ({ value }) => {
+  this.setState({
+    multipleLabelizeLabels: [...value]
+  })
+  // const result = []
+  // const currentLabels = this.state.callWiseLabels[callId] || []
+  // value.map((c) => {
+  //   if (typeof c !== "string") {
+  //     result.push(c)
+  //   }
+  // })
+  // this.setState({ tags: result })
+}
+
 
   addLabel = (value, callId, isNew) => {
-//    console.log(value)
     const handleSuccess = () => {
       let labelList = this.state.labelList
       if (isNew) labelList = [...this.state.labelList, value]
@@ -369,8 +437,62 @@ class CallerList extends React.Component {
     })
   }
   handleNewLabels = (e, { value }, callId) => {
-    console.log('handlenew label', value);
     this.addLabel(value, callId, true);
   }
+  deSelectAll = () => {
+    this.setState({ isAllSelected: false, selectedCalls: [], deselectedArray: [] })
+  }
+  selectAll = () => this.setState({ isAllSelected: true, selectedCalls: [], deselectedArray: [] })
+
+  getLabelModal = () => {
+    return <LabelModal
+      hideLabelModal={this.hideLabelModal}
+      labelList={this.state.labelList}
+      labels={this.state.multipleLabelizeLabels}
+      handleAddedLabels={this.handleAddedLabelsMultiple}
+      labelizeMultiple={this.labelizeMultiple} />
+  }
+  labelizeMultiple = () => {
+    const { isAllSelected, deselectedArray, callWiseLabels } = this.state
+    let selectedCalls = this.state.selectedCalls
+    if(isAllSelected) {
+      const filteredCalls = this.getFilteredCalls();
+      selectedCalls = filteredCalls.filter(val => deselectedArray.indexOf(val.call_id) === -1).map(val => val.call_id);
+    }
+    const { multipleLabelizeLabels, labelList } = this.state;
+    const handleSuccess = () => {
+      selectedCalls.map(val => {
+          let current = callWiseLabels[val];
+          const newLabels = multipleLabelizeLabels.filter(val => (current.indexOf(val) === -1));
+          current = [...current, ...newLabels];
+          callWiseLabels[val] = current;
+      });
+      const newLabels = multipleLabelizeLabels.filter(val => (labelList.indexOf(val) === -1));
+      this.setState({
+        callWiseLabels: { ...callWiseLabels },
+        labelList: [...labelList, ...newLabels],
+        multipleLabelizeLabels: [],
+        labelModal: false,
+        labelizeMode: false
+      }, () => alert(selectedCalls.length+ " calls labelized successfully."));
+    }
+    addLabel({
+      handleSuccess,
+      callList: selectedCalls,
+      labelList: multipleLabelizeLabels,
+      operation: labelActions.ADD,
+    })
+
+  }
+  applyLabels = () => {
+    const { isAllSelected, deselectedArray, selectedCalls } = this.state
+    const filteredCalls = this.getFilteredCalls();
+    if( !(isAllSelected && (deselectedArray.length < filteredCalls.length)) && !selectedCalls.length) {
+      alert("Please Select atleast one of the calls");
+      return;
+    }
+    this.setState({ labelModal: true })
+  }
+  hideLabelModal = () => this.setState({ labelModal: false, multipleLabelizeLabels: [] })
 }
 export default CallerList

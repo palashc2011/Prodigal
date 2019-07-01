@@ -1,16 +1,28 @@
 import React from 'react';
-import { Segment, Grid, Dropdown, Label } from 'semantic-ui-react';
-
+import { Segment, Grid, Dropdown, Label, Checkbox } from 'semantic-ui-react';
+const checkBoxStyle = {
+  marginLeft: '5px',
+  position: 'absolute',
+  top: '50%',
+  left: '0%',
+  transform: 'translate(-50%,-50%)'
+}
 export default function CallerDetails({
   singleCallerData,
   labelList,
   labels,
   handleAddedLabels,
   handleNewLabels,
+  handleCheckboxChange,
+  isSelected,
+  isAllSelected,
+  labelizeMode
 }) {
   return (
+  <div style={{ position: 'relative' }}>
+    {labelizeMode && <Checkbox  style={checkBoxStyle} checked={isSelected || isAllSelected} onChange={(e, data) => handleCheckboxChange(data, singleCallerData.call_id)} />}
     <Segment
-      style={{ marginTop: '2em', width: '100%', cursor: 'pointer' }}
+      style={{ margin: '2em 0 0 2em', width: '100%', cursor: 'pointer' }}
     >
       <Grid style={{ paddingBottom: '1rem' }}>
         <Grid.Row style={{ padding: '2rem 1rem 0rem 1rem' }} verticalAlign="middle">
@@ -52,5 +64,5 @@ export default function CallerDetails({
         </Grid.Row>
       </Grid>
     </Segment>
-  );
+  </div>);
 }
